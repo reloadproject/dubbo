@@ -6,10 +6,11 @@
         <artifactId>dubbo</artifactId>
         <groupId>dubbo</groupId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../dubbo/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dubbo-provider</artifactId>
-
+    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>dubbo</groupId>

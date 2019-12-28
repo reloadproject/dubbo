@@ -1,0 +1,84 @@
+https://blog.csdn.net/hua1586981/article/details/79195111
+
+调用流程 
+0.启动服务提供者。 
+1.服务提供者在启动时，向注册中心注册自己提供的服务。 
+2.服务消费者在启动时，向注册中心订阅自己所需的服务。 
+3.注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。 
+4.服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。 
+5.服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。
+
+注册中心 
+服务提供方：针对所提供的服务到注册中心发布。 
+服务消费方：到服务中心订阅所需的服务。 
+对于任何一方，不论服务提供方或者服务消费方都有可能同时兼具两种角色，即需要提供服务也需要消费服务。
+
+架构搭建案例
+1.zookpeeper 安装
+去官网下载 zookpeeper
+
+把包下载后，解压到目录，例如：D:\software\work\zookeeper （解压后更名为zookeeper） 
+修改zoo_sample.cfg 文件名(D:\software\work\zookeeper\conf) 为 zoo.cfg 
+主要更改配置文件里面的日志目录，如下： 
+dataDir=D:\zookeeper\data 
+dataLogDir=D:\zookeeper\log
+
+启动 
+进入到bin目录，并且启动zkServer.cmd，如图： 
+
+
+2.创建maven工程
+工程分为4个结构
+
+dubbo 工程，主工程，主要导入公共jar包等
+dubbo-api 工程，公共接口
+dubbo-provider 工程，服务提供者
+dubbo-consumer-user 和 dubbo-consumer 工程，服务消费者 
+
+（注：每个工程都是独立的，通过maven 引入父子关系） 
+1.创建dubbo 的maven 主工程 
+创建步骤省略，主要导入相关jar包等，具体请查看给到源码的pom.xml，此工程暂仅配置pom.xml，没有其他操作
+
+2.创建dubbo-api 的maven 接口工程 
+主要定义接口，并配置好pom.xml 
+
+
+3.创建dubbo-provider 的maven 工程 
+服务提供者，实现公共接口的实现，此实现对消费者隐藏
+
+加入公共接口所在的依赖 
+
+接口实现 
+ 
+用Spring配置声明服务 
+
+服务者启动（前提启动 zookeeper） 
+
+
+4.创建dubbo-consumer-user 的maven 工程（可以有多个consumer，配置跟上） 
+服务消费者，实现公共接口的实现，调用服务
+
+通过Spring引用服务 
+
+启动consumer ，调用服务 
+
+
+5.运行项目，顺序：zookeeper –> dubbo-provider –> dubbo-consumer-user
+
+
+3.dubbo-admin 搭建
+提供界面化管理dubbo 服务
+
+下载地址 
+https://itmayun.ctfile.com/fs/3011962-230676583
+
+下载后把war包放入tomcat的webapps目录下，启动tomcat
+
+浏览器输入：http://localhost:8080/dubbo-admin/ 
+默认账号： root 密码：root
+
+
+
+————————————————
+版权声明：本文为CSDN博主「Andy_down」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/hua1586981/article/details/79195111

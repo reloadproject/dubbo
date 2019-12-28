@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 官网:https://logback.qos.ch/manual/appenders.html#FixedWindowRollingPolicy
+参考 http://aub.iteye.com/blog/1101260  -->
+<configuration>
+    <!-- ch.qos.logback.core.ConsoleAppender 控制台输出 -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoder 默认配置为PatternLayoutEncoder -->
+        <encoder>
+            <!--%-4relative 表示，将输出从程序启动到创建日志记录的时间 进行左对齐 且最小宽度为4-->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} Line:%L - %msg%n</pattern>-->
+            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{26} Method:%M Line:%L - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 简单日志 -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>log/logile.log</file>
+
+        <!--如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true-->
+        <append>true</append>
+        <!-- 如果是 true，日志会被安全的写入文件，即使其他的FileAppender也在向此文件做写入操作，效率低，默认是 false。-->
+        <prudent>false</prudent>
+        <!--对记录事件进行格式化-->
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{26} Method:%M Line:%L - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 滚动日志 每天生成一个日志文件，保存30天的日志文件。 -->
+    <appender name="RollingFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- <file>log/logRollingFILE.log</file> -->
+        <!--当发生滚动时，决定 RollingFileAppender 的行为，涉及文件移动和重命名-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>log/logRollingFILE.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!--可选节点，控制保留的归档文件的最大数量，超出数量就删除旧文件。假设设置每个月滚动，且 <maxHistory>是6，则只保存最近6个月的文件，删除之前的旧文件。注意，删除旧文件是，那些为了归档而创建的目录也会被删除。-->
+            <maxHistory>30</maxHistory>
+            <!--<minIndex>1</minIndex>-->
+            <!--<maxIndex>3</maxIndex>-->
+        </rollingPolicy>
+        <!--告知 RollingFileAppender 何时激活滚动。
+         SizeBasedTriggeringPolicy 查看当前活动文件的大小，如果超过指定大小会告知 RollingFileAppender 触发当前活动文件滚动
+         -->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5MB</maxFileSize>
+        </triggeringPolicy>
+
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{26} Method:%M Line:%L - %msg%n</pattern>
+        </encoder>
+        <!--当prudent为true时，不支持FixedWindowRollingPolicy。支持TimeBasedRollingPolicy，但是有两个限制，1不支持也不允许文件压缩，2不能设置file属性，必须留空-->
+        <prudent>true</prudent>
+    </appender>
+
+    <!-- 按照固定窗口模式生成日志文件，当文件大于20MB时，生成新的日志文件。窗口大小是1到3，当保存了3个归档文件后，将覆盖最早的日志。 -->
+    <appender name="RollingFILEAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/logRollingFILEAppender.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>log/logRollingFILEAppender.%i.log.zip</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>3</maxIndex>
+        </rollingPolicy>
+
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>5MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{26} Method:%M Line:%L - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+    <loger>
+    用来设置某一个包或者具体的某一个类的日志打印级别、以及指定<appender>。<loger>仅有一个name属性，一个可选的level和一个可选的addtivity属性。
+    name:
+    用来指定受此loger约束的某一个包或者具体的某一个类。
+    level:
+    用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，还有一个特俗值INHERITED或者同义词NULL，代表强制执行上级的级别。
+    如果未设置此属性，那么当前loger将会继承上级的级别。
+    addtivity:
+    是否向上级loger传递打印信息。默认是true。
+    <loger>可以包含零个或多个<appender-ref>元素，标识这个appender将会添加到这个loger。
+    -->
+    <!-- com.demo 为java中的包 -->
+    <logger name="com.demo" additivity="false"/>
+    <!--com.demo.controller.TestController ：类的全路径 -->
+    <logger name="com.demo.controller.TestController" level="INFO" additivity="false">
+        <appender-ref ref="Console"/>
+    </logger>
+
+    <!-- 日志级别
+    <root> 也是<loger>元素，但是它是根loger。只有一个level属性，应为已经被命名为"root".
+    level:
+    用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为INHERITED或者同义词NULL。默认是DEBUG。
+    <root>可以包含零个或多个<appender-ref>元素，标识这个appender将会添加到这个loger。
+-->
+
+   <!-- <root level="DEBUG">
+        <appender-ref ref="Console" />
+    </root>-->
+
+    <root level="info">
+        <appender-ref ref="Console"/>
+       <!--  <appender-ref ref="FILE" /> -->
+    </root>
+
+    <!--<root level="ERROR">
+        &lt;!&ndash;<appender-ref ref="Console" />&ndash;&gt;
+        <appender-ref ref="RollingFILEAppender" />
+    </root>-->
+</configuration>

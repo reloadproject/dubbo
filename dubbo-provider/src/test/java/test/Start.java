@@ -16,5 +16,6 @@ public class Start {
 		context.start();
 		System.out.println("provider start");
 		System.in.read();
+		//org.apache.curator.RetryPolicy retryPolicy = new org.apache.curator.RetryPolicy();
 	}
 }
